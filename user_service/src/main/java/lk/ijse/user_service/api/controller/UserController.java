@@ -7,5 +7,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/v1/users")
 public class UserController {
 
-    public String saveUser(User user){}
+    public String saveUser(){}
 }
