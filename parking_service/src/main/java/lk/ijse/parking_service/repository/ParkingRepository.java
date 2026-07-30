@@ -7,6 +7,10 @@ import java.util.List;
 
 public interface ParkingRepository extends JpaRepository<Parking, Long> {
 
-    List<Parking> findByLocationContainingIgnoreCase(String location);
+    List<Parking> findByCityContainingIgnoreCaseOrZoneContainingIgnoreCaseOrLocationContainingIgnoreCase(
+            String city,
+            String zone,
+            String location
+    );
 
 }

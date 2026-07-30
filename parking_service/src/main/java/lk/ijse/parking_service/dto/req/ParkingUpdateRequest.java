@@ -1,6 +1,5 @@
 package lk.ijse.parking_service.dto.req;
 
-import lk.ijse.parking_service.entity.ParkingStatus;
 import lombok.*;
 
 import java.time.LocalTime;
@@ -17,7 +16,6 @@ public class ParkingUpdateRequest {
     private String address;
     private Integer totalSlots;
     private Double hourlyRate;
-    private ParkingStatus status;
     private String city;
     private String zone;
     private Double latitude;
