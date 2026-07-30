@@ -2,6 +2,8 @@ package lk.ijse.parking_service.dto.req;
 
 import lombok.*;
 
+import java.time.LocalTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,4 +16,13 @@ public class ParkingSaveRequest {
     private String address;
     private Integer totalSlots;
     private Double hourlyRate;
+    private String city;
+    private String zone;
+    private Double latitude;
+    private Double longitude;
+    private Long ownerId;
+    private String description;
+    private String contactNumber;
+    private LocalTime openingTime;
+    private LocalTime closingTime;
 }

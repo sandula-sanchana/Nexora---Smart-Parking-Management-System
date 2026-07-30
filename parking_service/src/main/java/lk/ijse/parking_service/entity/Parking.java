@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -21,10 +22,22 @@ public class Parking {
     private String parkingName;
 
     @Column(nullable = false)
+    private String city;
+
+    @Column(nullable = false)
+    private String zone;
+
+    @Column(nullable = false)
     private String location;
 
     @Column(nullable = false)
     private String address;
+
+    @Column(nullable = false)
+    private Double latitude;
+
+    @Column(nullable = false)
+    private Double longitude;
 
     @Column(nullable = false)
     private Integer totalSlots;
@@ -34,6 +47,17 @@ public class Parking {
 
     @Column(nullable = false)
     private Double hourlyRate;
+
+    @Column(nullable = false)
+    private Long ownerId;
+
+    private String description;
+
+    private String contactNumber;
+
+    private LocalTime openingTime;
+
+    private LocalTime closingTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

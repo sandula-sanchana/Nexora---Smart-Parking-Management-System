@@ -101,4 +101,30 @@ public class ParkingController {
         );
     }
 
+    @PostMapping("/{id}/reserve")
+    public ResponseEntity<ApiResponse<ParkingResponse>> reserveParking(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        200,
+                        "Parking reserved successfully",
+                        parkingService.reserveParking(id)
+                )
+        );
+    }
+
+    @PostMapping("/{id}/release")
+    public ResponseEntity<ApiResponse<ParkingResponse>> releaseParking(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        200,
+                        "Parking released successfully",
+                        parkingService.releaseParking(id)
+                )
+        );
+    }
+
 }

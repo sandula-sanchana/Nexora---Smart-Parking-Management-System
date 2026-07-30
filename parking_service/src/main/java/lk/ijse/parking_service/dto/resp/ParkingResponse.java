@@ -4,6 +4,7 @@ import lk.ijse.parking_service.entity.ParkingStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -22,4 +23,13 @@ public class ParkingResponse {
     private ParkingStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String city;
+    private String zone;
+    private Double latitude;
+    private Double longitude;
+    private Long ownerId;
+    private String description;
+    private String contactNumber;
+    private LocalTime openingTime;
+    private LocalTime closingTime;
 }

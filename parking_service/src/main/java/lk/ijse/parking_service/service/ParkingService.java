@@ -19,4 +19,8 @@ public interface ParkingService {
     void deleteParking(Long id);
 
     List<ParkingResponse> filterByLocation(String location);
+
+    ParkingResponse reserveParking(Long id);
+
+    ParkingResponse releaseParking(Long id);
 }
