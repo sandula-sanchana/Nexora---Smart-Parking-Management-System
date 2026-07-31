@@ -25,14 +25,14 @@ app.listen(PORT, () => {
 
     const eurekaClient = new Eureka({
         instance: {
-            app: "vehicle_service",
+            app: "vehicle-service",
             hostName: "localhost",
             ipAddr: "127.0.0.1",
             port: {
                 "$": PORT,
                 "@enabled": true,
             },
-            vipAddress: "vehicle_service",
+            vipAddress: "vehicle-service",
             dataCenterInfo: {
                 "@class": "com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo",
                 name: "MyOwn",
