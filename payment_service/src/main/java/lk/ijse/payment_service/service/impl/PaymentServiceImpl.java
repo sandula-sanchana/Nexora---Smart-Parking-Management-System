@@ -11,6 +11,9 @@ import lk.ijse.payment_service.repository.PaymentRepository;
 import lk.ijse.payment_service.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,10 +24,20 @@ import java.util.UUID;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final RestTemplate restTemplate;
 
     @Override
     public PaymentResponse processPayment(PaymentRequest request) {
         validateRequest(request);
+        verifyReferenceExists(
+                "http://user-service/user_service/api/v1/users/" + request.getUserId(),
+                "User");
+        verifyReferenceExists(
+                "http://parking-service/parking_service/api/v1/parking/" + request.getParkingId(),
+                "Parking session");
+        verifyReferenceExists(
+                "http://vehicle-service/api/v1/vehicles/" + request.getVehicleId(),
+                "Vehicle");
 
         String maskedCardNumber = maskCardNumber(request.getCardNumber());
         boolean declined = request.getCardNumber().endsWith("0000");
@@ -50,6 +63,16 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         return mapToResponse(paymentRepository.save(payment));
+    }
+
+    private void verifyReferenceExists(String url, String label) {
+        try {
+            restTemplate.getForEntity(url, String.class);
+        } catch (HttpClientErrorException.NotFound ex) {
+            throw new BadRequestException(label + " not found — cannot process payment");
+        } catch (RestClientException ex) {
+            throw new BadRequestException(label + " service is unavailable — cannot verify reference");
+        }
     }
 
     @Override
@@ -93,7 +116,7 @@ public class PaymentServiceImpl implements PaymentService {
     private void validateRequest(PaymentRequest request) {
         if (request.getUserId() == null || request.getUserId() <= 0)
             throw new BadRequestException("Valid user ID is required");
-        if (request.getVehicleId() == null || request.getVehicleId() <= 0)
+        if (request.getVehicleId() == null || request.getVehicleId().trim().isEmpty())
             throw new BadRequestException("Valid vehicle ID is required");
         if (request.getParkingId() == null || request.getParkingId() <= 0)
             throw new BadRequestException("Valid parking session ID is required");

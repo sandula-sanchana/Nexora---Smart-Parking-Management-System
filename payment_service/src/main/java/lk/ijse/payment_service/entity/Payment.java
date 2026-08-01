@@ -21,7 +21,7 @@ public class Payment {
     private Long userId;
 
     @Column(nullable = false)
-    private Long vehicleId;
+    private String vehicleId;
 
     @Column(nullable = false)
     private Long parkingId;

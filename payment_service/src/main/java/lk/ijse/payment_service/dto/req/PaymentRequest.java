@@ -10,7 +10,7 @@ import lombok.*;
 public class PaymentRequest {
 
     private Long userId;
-    private Long vehicleId;
+    private String vehicleId;
     private Long parkingId;
     private Double amount;
     private String cardHolderName;
