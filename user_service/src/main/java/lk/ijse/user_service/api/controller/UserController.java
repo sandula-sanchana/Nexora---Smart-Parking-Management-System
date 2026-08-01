@@ -1,5 +1,6 @@
 package lk.ijse.user_service.api.controller;
 
+import lk.ijse.user_service.dto.req.LoginRequest;
 import lk.ijse.user_service.dto.req.UserSaveRequest;
 import lk.ijse.user_service.dto.req.UserUpdateRequest;
 import lk.ijse.user_service.dto.resp.UserResponse;
@@ -32,6 +33,19 @@ public class UserController {
                         "User created successfully",
                         response
                 ));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<UserResponse>> login(
+            @RequestBody LoginRequest request) {
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        200,
+                        "Login successful",
+                        userService.login(request)
+                )
+        );
     }
 
     @GetMapping("/{id}")

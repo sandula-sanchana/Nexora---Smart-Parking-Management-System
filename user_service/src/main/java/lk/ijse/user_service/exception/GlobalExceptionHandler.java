@@ -20,6 +20,14 @@ public class GlobalExceptionHandler {
                         "message", ex.getMessage()
                 ));
     }
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<?> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "message", ex.getMessage()
+                ));
+    }
 
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<?> handleDuplicateEmail(DuplicateEmailException ex){

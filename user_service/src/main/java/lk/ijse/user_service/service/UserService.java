@@ -1,5 +1,6 @@
 package lk.ijse.user_service.service;
 
+import lk.ijse.user_service.dto.req.LoginRequest;
 import lk.ijse.user_service.dto.req.UserSaveRequest;
 import lk.ijse.user_service.dto.req.UserUpdateRequest;
 import lk.ijse.user_service.dto.resp.UserResponse;
@@ -17,5 +18,7 @@ public interface UserService {
     List<UserResponse> getAllUsers();
 
     void deleteUser(Long id);
+
+    UserResponse login(LoginRequest request);
 
 }
