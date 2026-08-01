@@ -1,0 +1,415 @@
+{
+  "info": {
+    "name": "Nexora SPMS - Full Collection (via API Gateway)",
+    "description": "All 4 microservices (Parking, User, Vehicle, Payment) tested end-to-end through the API Gateway on port 8080. Requests are chained: create a Parking spot -> create a User -> register that User's Vehicle -> pay for the Vehicle's Parking session.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "gateway_url", "value": "http://localhost:8080" },
+    { "key": "parking_id", "value": "" },
+    { "key": "user_id", "value": "" },
+    { "key": "vehicle_id", "value": "" },
+    { "key": "payment_id_success", "value": "" },
+    { "key": "payment_id_failed", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Parking Service",
+      "item": [
+        {
+          "name": "1.1 Register Parking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('parking_id', pm.response.json().data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parkingName\": \"City Center Parking\",\n  \"location\": \"Colombo 03\",\n  \"address\": \"123 Galle Road\",\n  \"totalSlots\": 50,\n  \"hourlyRate\": 100.00,\n  \"city\": \"Colombo\",\n  \"zone\": \"Zone A\",\n  \"latitude\": 6.9147,\n  \"longitude\": 79.8489,\n  \"ownerId\": 1,\n  \"description\": \"Covered multi-level parking\",\n  \"contactNumber\": \"0771234567\",\n  \"openingTime\": \"06:00:00\",\n  \"closingTime\": \"22:00:00\"\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/parking_service/api/v1/parking", "host": ["{{gateway_url}}"], "path": ["parking_service", "api", "v1", "parking"] }
+          }
+        },
+        {
+          "name": "1.2 Get Parking By ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/parking_service/api/v1/parking/{{parking_id}}", "host": ["{{gateway_url}}"], "path": ["parking_service", "api", "v1", "parking", "{{parking_id}}"] }
+          }
+        },
+        {
+          "name": "1.3 Get All Parking",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/parking_service/api/v1/parking", "host": ["{{gateway_url}}"], "path": ["parking_service", "api", "v1", "parking"] }
+          }
+        },
+        {
+          "name": "1.4 Filter Parking By Location",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/parking_service/api/v1/parking/search?location=Colombo 03", "host": ["{{gateway_url}}"], "path": ["parking_service", "api", "v1", "parking", "search"], "query": [{ "key": "location", "value": "Colombo 03" }] }
+          }
+        },
+        {
+          "name": "1.5 Reserve Parking",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{gateway_url}}/parking_service/api/v1/parking/{{parking_id}}/reserve", "host": ["{{gateway_url}}"], "path": ["parking_service", "api", "v1", "parking", "{{parking_id}}", "reserve"] }
+          }
+        },
+        {
+          "name": "1.6 Release Parking",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{gateway_url}}/parking_service/api/v1/parking/{{parking_id}}/release", "host": ["{{gateway_url}}"], "path": ["parking_service", "api", "v1", "parking", "{{parking_id}}", "release"] }
+          }
+        },
+        {
+          "name": "1.7 Update Parking",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"parkingName\": \"City Center Parking - Updated\",\n  \"location\": \"Colombo 03\",\n  \"address\": \"123 Galle Road\",\n  \"totalSlots\": 60,\n  \"hourlyRate\": 120.00,\n  \"city\": \"Colombo\",\n  \"zone\": \"Zone A\",\n  \"latitude\": 6.9147,\n  \"longitude\": 79.8489,\n  \"ownerId\": 1,\n  \"description\": \"Covered multi-level parking, now expanded\",\n  \"contactNumber\": \"0771234567\",\n  \"openingTime\": \"06:00:00\",\n  \"closingTime\": \"23:00:00\"\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/parking_service/api/v1/parking/{{parking_id}}", "host": ["{{gateway_url}}"], "path": ["parking_service", "api", "v1", "parking", "{{parking_id}}"] }
+          }
+        },
+        {
+          "name": "1.8 Get Non-Existent Parking (expect 404)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/parking_service/api/v1/parking/99999", "host": ["{{gateway_url}}"], "path": ["parking_service", "api", "v1", "parking", "99999"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. User Service",
+      "item": [
+        {
+          "name": "2.1 Register User (DRIVER)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('user_id', pm.response.json().data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Sandula\",\n  \"lastName\": \"Sanchana\",\n  \"email\": \"sandula@example.com\",\n  \"password\": \"Passw0rd!123\",\n  \"phoneNumber\": \"0771234567\",\n  \"role\": \"DRIVER\"\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/user_service/api/v1/users", "host": ["{{gateway_url}}"], "path": ["user_service", "api", "v1", "users"] }
+          }
+        },
+        {
+          "name": "2.2 Login - SUCCESS",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sandula@example.com\",\n  \"password\": \"Passw0rd!123\"\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/user_service/api/v1/users/login", "host": ["{{gateway_url}}"], "path": ["user_service", "api", "v1", "users", "login"] }
+          }
+        },
+        {
+          "name": "2.3 Login - Wrong Password (expect 401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sandula@example.com\",\n  \"password\": \"WrongPassword123\"\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/user_service/api/v1/users/login", "host": ["{{gateway_url}}"], "path": ["user_service", "api", "v1", "users", "login"] }
+          }
+        },
+        {
+          "name": "2.4 Login - Non-Existent Email (expect 401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nobody@example.com\",\n  \"password\": \"Passw0rd!123\"\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/user_service/api/v1/users/login", "host": ["{{gateway_url}}"], "path": ["user_service", "api", "v1", "users", "login"] }
+          }
+        },
+        {
+          "name": "2.5 Register Duplicate Email (expect 409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Sandula\",\n  \"lastName\": \"Sanchana\",\n  \"email\": \"sandula@example.com\",\n  \"password\": \"Passw0rd!123\",\n  \"phoneNumber\": \"0771234567\",\n  \"role\": \"DRIVER\"\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/user_service/api/v1/users", "host": ["{{gateway_url}}"], "path": ["user_service", "api", "v1", "users"] }
+          }
+        },
+        {
+          "name": "2.6 Get User By ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/user_service/api/v1/users/{{user_id}}", "host": ["{{gateway_url}}"], "path": ["user_service", "api", "v1", "users", "{{user_id}}"] }
+          }
+        },
+        {
+          "name": "2.7 Get All Users",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/user_service/api/v1/users", "host": ["{{gateway_url}}"], "path": ["user_service", "api", "v1", "users"] }
+          }
+        },
+        {
+          "name": "2.8 Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Sandula\",\n  \"lastName\": \"Sanchana Perera\",\n  \"phoneNumber\": \"0779998888\",\n  \"role\": \"DRIVER\"\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/user_service/api/v1/users/{{user_id}}", "host": ["{{gateway_url}}"], "path": ["user_service", "api", "v1", "users", "{{user_id}}"] }
+          }
+        },
+        {
+          "name": "2.9 Get Non-Existent User (expect 404)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/user_service/api/v1/users/99999", "host": ["{{gateway_url}}"], "path": ["user_service", "api", "v1", "users", "99999"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Vehicle Service",
+      "item": [
+        {
+          "name": "3.1 Register Vehicle (linked to User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('vehicle_id', pm.response.json().data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicleNumber\": \"WP-CAB-1234\",\n  \"vehicleType\": \"CAR\",\n  \"brand\": \"Toyota\",\n  \"vehicleModel\": \"Aqua\",\n  \"color\": \"White\",\n  \"userId\": \"{{user_id}}\"\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/api/v1/vehicles", "host": ["{{gateway_url}}"], "path": ["api", "v1", "vehicles"] }
+          }
+        },
+        {
+          "name": "3.2 Register Duplicate Vehicle (expect 409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicleNumber\": \"WP-CAB-1234\",\n  \"vehicleType\": \"CAR\",\n  \"brand\": \"Toyota\",\n  \"vehicleModel\": \"Aqua\",\n  \"color\": \"White\",\n  \"userId\": \"{{user_id}}\"\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/api/v1/vehicles", "host": ["{{gateway_url}}"], "path": ["api", "v1", "vehicles"] }
+          }
+        },
+        {
+          "name": "3.3 Get Vehicle By ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/api/v1/vehicles/{{vehicle_id}}", "host": ["{{gateway_url}}"], "path": ["api", "v1", "vehicles", "{{vehicle_id}}"] }
+          }
+        },
+        {
+          "name": "3.4 Get Vehicles By User",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/api/v1/vehicles/user/{{user_id}}", "host": ["{{gateway_url}}"], "path": ["api", "v1", "vehicles", "user", "{{user_id}}"] }
+          }
+        },
+        {
+          "name": "3.5 Record Vehicle Entry",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{gateway_url}}/api/v1/vehicles/{{vehicle_id}}/entry", "host": ["{{gateway_url}}"], "path": ["api", "v1", "vehicles", "{{vehicle_id}}", "entry"] }
+          }
+        },
+        {
+          "name": "3.6 Record Entry Again (expect 400)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{gateway_url}}/api/v1/vehicles/{{vehicle_id}}/entry", "host": ["{{gateway_url}}"], "path": ["api", "v1", "vehicles", "{{vehicle_id}}", "entry"] }
+          }
+        },
+        {
+          "name": "3.7 Get All Vehicles",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/api/v1/vehicles", "host": ["{{gateway_url}}"], "path": ["api", "v1", "vehicles"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Payment Service",
+      "item": [
+        {
+          "name": "4.1 Process Payment - SUCCESS (for the reserved parking + vehicle)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('payment_id_success', pm.response.json().data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{user_id}},\n  \"vehicleId\": \"{{vehicle_id}}\",\n  \"parkingId\": {{parking_id}},\n  \"amount\": 250.00,\n  \"cardHolderName\": \"Sandula Sanchana\",\n  \"cardNumber\": \"4111111111111234\",\n  \"cvv\": \"123\",\n  \"expiryMonth\": 12,\n  \"expiryYear\": 2028\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/payment_service/api/v1/payments", "host": ["{{gateway_url}}"], "path": ["payment_service", "api", "v1", "payments"] }
+          }
+        },
+        {
+          "name": "4.2 Process Payment - FAILED (card ends 0000)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('payment_id_failed', pm.response.json().data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{user_id}},\n  \"vehicleId\": \"{{vehicle_id}}\",\n  \"parkingId\": {{parking_id}},\n  \"amount\": 150.00,\n  \"cardHolderName\": \"Sandula Sanchana\",\n  \"cardNumber\": \"4111111111110000\",\n  \"cvv\": \"456\",\n  \"expiryMonth\": 6,\n  \"expiryYear\": 2027\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/payment_service/api/v1/payments", "host": ["{{gateway_url}}"], "path": ["payment_service", "api", "v1", "payments"] }
+          }
+        },
+        {
+          "name": "4.2b Process Payment - Invalid Parking ID (expect 400, proves live Parking Service validation)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{user_id}},\n  \"vehicleId\": \"{{vehicle_id}}\",\n  \"parkingId\": 999999,\n  \"amount\": 150.00,\n  \"cardHolderName\": \"Sandula Sanchana\",\n  \"cardNumber\": \"4111111111111234\",\n  \"cvv\": \"456\",\n  \"expiryMonth\": 6,\n  \"expiryYear\": 2027\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/payment_service/api/v1/payments", "host": ["{{gateway_url}}"], "path": ["payment_service", "api", "v1", "payments"] }
+          }
+        },
+        {
+          "name": "4.2c Process Payment - Invalid User ID (expect 400, proves live User Service validation)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 999999,\n  \"vehicleId\": \"{{vehicle_id}}\",\n  \"parkingId\": {{parking_id}},\n  \"amount\": 150.00,\n  \"cardHolderName\": \"Sandula Sanchana\",\n  \"cardNumber\": \"4111111111111234\",\n  \"cvv\": \"456\",\n  \"expiryMonth\": 6,\n  \"expiryYear\": 2027\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/payment_service/api/v1/payments", "host": ["{{gateway_url}}"], "path": ["payment_service", "api", "v1", "payments"] }
+          }
+        },
+        {
+          "name": "4.2d Process Payment - Invalid Vehicle ID (expect 400, proves live Vehicle Service validation)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": {{user_id}},\n  \"vehicleId\": \"000000000000000000000000\",\n  \"parkingId\": {{parking_id}},\n  \"amount\": 150.00,\n  \"cardHolderName\": \"Sandula Sanchana\",\n  \"cardNumber\": \"4111111111111234\",\n  \"cvv\": \"456\",\n  \"expiryMonth\": 6,\n  \"expiryYear\": 2027\n}"
+            },
+            "url": { "raw": "{{gateway_url}}/payment_service/api/v1/payments", "host": ["{{gateway_url}}"], "path": ["payment_service", "api", "v1", "payments"] }
+          }
+        },
+        {
+          "name": "4.3 Get Payment By ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/payment_service/api/v1/payments/{{payment_id_success}}", "host": ["{{gateway_url}}"], "path": ["payment_service", "api", "v1", "payments", "{{payment_id_success}}"] }
+          }
+        },
+        {
+          "name": "4.4 Get Payments By User",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/payment_service/api/v1/payments/user/{{user_id}}", "host": ["{{gateway_url}}"], "path": ["payment_service", "api", "v1", "payments", "user", "{{user_id}}"] }
+          }
+        },
+        {
+          "name": "4.5 Get Receipt - SUCCESS payment",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/payment_service/api/v1/payments/{{payment_id_success}}/receipt", "host": ["{{gateway_url}}"], "path": ["payment_service", "api", "v1", "payments", "{{payment_id_success}}", "receipt"] }
+          }
+        },
+        {
+          "name": "4.6 Get Receipt - FAILED payment (expect 400)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/payment_service/api/v1/payments/{{payment_id_failed}}/receipt", "host": ["{{gateway_url}}"], "path": ["payment_service", "api", "v1", "payments", "{{payment_id_failed}}", "receipt"] }
+          }
+        },
+        {
+          "name": "4.7 Get All Payments",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{gateway_url}}/payment_service/api/v1/payments", "host": ["{{gateway_url}}"], "path": ["payment_service", "api", "v1", "payments"] }
+          }
+        }
+      ]
+    }
+  ]
+}

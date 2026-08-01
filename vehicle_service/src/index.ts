@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import os from "os";
 import mongoose from "mongoose";
 import { Eureka } from "eureka-js-client";
 import dotenv from "dotenv";
@@ -23,10 +24,13 @@ mongoose
 app.listen(PORT, () => {
     console.log(`Vehicle Service running on port ${PORT}`);
 
+    const hostName = os.hostname();
+
     const eurekaClient = new Eureka({
         instance: {
             app: "vehicle-service",
-            hostName: "localhost",
+            instanceId: `${hostName}:vehicle-service:${PORT}`,
+            hostName: hostName,
             ipAddr: "127.0.0.1",
             port: {
                 "$": PORT,
